@@ -2,8 +2,8 @@ name: Daily Auto Commit - 24ds2000078@ds.study.iitm.ac.in
 
 on:
   schedule:
-    # Runs daily at 14:30 UTC (8:00 PM IST)
-    - cron: '30 14 * * *'
+    # Runs daily at 21:32 IST (16:02 UTC)
+    - cron: '2 16 * * *'
   workflow_dispatch:  # Allows manual triggering
 
 jobs:
@@ -11,26 +11,31 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout repository - 24ds2000078@ds.study.iitm.ac.in
-      uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        
-    - name: Setup Git config - 24ds2000078@ds.study.iitm.ac.in
-      run: |
-        git config --local user.email "24ds2000078@ds.study.iitm.ac.in"
-        git config --local user.name "GitHub Actions"
-        
-    - name: Create or update daily status file - 24ds2000078@ds.study.iitm.ac.in
-      run: |
-        date_str=$(date -u +"%Y-%m-%d")
-        echo "Daily automated commit for $date_str" > daily-update.txt
-        echo "Timestamp: $(date -u)" >> daily-update.txt
-        echo "Workflow: ${{ github.workflow }}" >> daily-update.txt
-        echo "Repository: ${{ github.repository }}" >> daily-update.txt
-        
-    - name: Commit and push changes - 24ds2000078@ds.study.iitm.ac.in
-      run: |
-        git add daily-update.txt
-        git commit -m "🤖 Automated daily commit - $(date -u +'%Y-%m-%d %H:%M:%S UTC')" || echo "No changes to commit"
-        git push
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Setup Git config
+        run: |
+          git config --local user.email "24ds2000078@ds.study.iitm.ac.in"
+          git config --local user.name "GitHub Actions"
+          
+      - name: Append daily update to file
+        run: |
+          date_str=$(date -u +"%Y-%m-%d")
+          echo "------------------------" >> daily-update.txt
+          echo "Daily automated commit for $date_str" >> daily-update.txt
+          echo "Timestamp: $(date -u)" >> daily-update.txt
+          echo "Workflow: ${{ github.workflow }}" >> daily-update.txt
+          echo "Repository: ${{ github.repository }}" >> daily-update.txt
+          
+      - name: Commit and push changes
+        run: |
+          git add daily-update.txt
+          if ! git diff --cached --quiet; then
+            git commit -m "🤖 Automated daily commit - $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+            git push
+          else
+            echo "No changes to commit"
+          fi
